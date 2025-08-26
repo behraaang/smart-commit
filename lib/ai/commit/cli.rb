@@ -131,6 +131,46 @@ module Ai
         else
           puts "❌ No API key configured"
         end
+        
+        if Config.has_custom_prompts?
+          puts "✓ Custom prompts found: #{Config.custom_prompts.length} prompt(s)"
+          Config.custom_prompts.each_with_index do |prompt, i|
+            puts "  #{i + 1}. #{prompt}"
+          end
+        else
+          puts "ℹ️  No custom prompts found"
+          puts "   Create a .commit-prompts file in your project root to add custom context"
+        end
+      end
+      
+      desc "init-prompts", "Create a sample .commit-prompts file"
+      def init_prompts
+        prompts_file = Config::PROMPTS_FILE
+        
+        if File.exist?(prompts_file)
+          puts "❌ .commit-prompts file already exists"
+          exit 1
+        end
+        
+        sample_content = <<~PROMPTS
+          # Custom commit message prompts
+          # Add your project-specific context and preferences here
+          # Lines starting with # are ignored
+          
+          # Example prompts:
+          # - Always include the JIRA ticket number in the scope
+          # - Use 'feat' for new features, 'fix' for bug fixes
+          # - Keep descriptions under 50 characters
+          # - Prefer active voice and present tense
+          # - Include breaking change indicators when applicable
+          
+          # Your custom prompts go here:
+          
+        PROMPTS
+        
+        File.write(prompts_file, sample_content)
+        puts "✅ Created #{prompts_file} with sample content"
+        puts "📝 Edit the file to add your custom prompts"
       end
     end
   end

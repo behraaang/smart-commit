@@ -23,6 +23,9 @@ module Ai
       private
       
       def build_prompt(diff)
+        custom_prompts = Config.custom_prompts
+        custom_prompt_text = custom_prompts.empty? ? '' : "\n\nAdditional context and preferences:\n#{custom_prompts.join("\n")}"
+        
         <<~PROMPT
           You are a helpful assistant that generates conventional commit messages.
           
@@ -35,6 +38,7 @@ module Ai
           6. Reads like prose, not ticket numbers
           7. Often imperative, sometimes witty
           8. Emphasizes clarity over ceremony
+          #{custom_prompt_text}
           
           Git diff:
           #{diff}
