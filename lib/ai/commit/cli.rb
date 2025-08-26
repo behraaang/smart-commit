@@ -7,6 +7,9 @@ require_relative 'config'
 module Ai
   module Commit
     class CLI < Thor
+      def self.exit_on_failure?
+        true
+      end
       desc "setup", "Configure AI Commit with your Anthropic API key"
       def setup
         puts "Welcome to AI Commit setup!"
@@ -52,6 +55,64 @@ module Ai
           puts "#{message}"
           puts "\nTo commit with this message, run:"
           puts "git commit -m \"#{message}\""
+          
+        rescue Error => e
+          puts "❌ Error: #{e.message}"
+          exit 1
+        rescue => e
+          puts "❌ Unexpected error: #{e.message}"
+          exit 1
+        end
+      end
+      
+      desc "commit", "Generate a commit message and commit with confirmation"
+      def commit
+        unless Config.api_key_configured?
+          puts "❌ No API key configured. Please run 'ai-commit setup' first."
+          exit 1
+        end
+        
+        unless Git.in_git_repo?
+          puts "❌ Not in a git repository"
+          exit 1
+        end
+        
+        unless Git.has_staged_changes?
+          puts "❌ No staged changes found. Stage your changes with 'git add' first."
+          exit 1
+        end
+        
+        puts "🤖 Generating commit message..."
+        
+        begin
+          diff = Git.staged_diff
+          client = ClaudeClient.new(Config.api_key)
+          message = client.generate_commit_message(diff)
+          
+          puts "\n✨ Generated commit message:"
+          puts "=" * 50
+          puts message
+          puts "=" * 50
+          
+          print "\nCommit with this message? (y/N): "
+          response = STDIN.gets.chomp.downcase
+          
+          if response == 'y' || response == 'yes'
+            puts "\n🚀 Committing..."
+            result = `git commit -m "#{message}"`
+            
+            if $?.exitstatus == 0
+              puts "✅ Successfully committed!"
+              puts result
+            else
+              puts "❌ Failed to commit:"
+              puts result
+              exit 1
+            end
+          else
+            puts "❌ Commit cancelled."
+            exit 0
+          end
           
         rescue Error => e
           puts "❌ Error: #{e.message}"
