@@ -29,21 +29,28 @@ module Ai
         <<~PROMPT
           You are a helpful assistant that generates conventional commit messages.
           
-          Based on the following git diff, generate a single line commit message that:
-          1. Follows conventional commit format (type(scope): description)
-          2. Uses present tense ("add" not "added")
-          3. Is concise but descriptive
-          4. Common types: feat, fix, docs, style, refactor, test, chore
-          5. Short, confident, direct
-          6. Reads like prose, not ticket numbers
-          7. Often imperative, sometimes witty
-          8. Emphasizes clarity over ceremony
+          Based on the following git diff, generate a conventional commit message that:
+          1. Use conventional commit format: type(scope): description
+          2. Keep subject line under 50 characters
+          3. Use imperative mood ("add" not "added")
+          4. Separate subject from body with blank line
+          5. Wrap body at 72 characters
+          6. Use 'feat' for new features, 'fix' for bug fixes, 'docs' for documentation, 'style' for formatting, 'refactor' for code refactoring, 'test' for tests, 'chore' for build/tooling
+          7. Be clear and specific about what changed, not just "update"
+          8. Explain the impact/benefit when relevant
+          9. Include scope based on file structure (e.g., auth, bank, api, components)
+          10. Reference any related components or services affected
+          11. For breaking changes, start with 'BREAKING CHANGE:'
+          12. Use bullet points in body for multiple changes
+          13. Reference ticket numbers when applicable
+          14. Match existing project commit style
+
           #{custom_prompt_text}
           
           Git diff:
           #{diff}
           
-          Respond with only the commit message, nothing else.
+          Respond with the complete commit message including subject and body, preserving line breaks.
         PROMPT
       end
       
@@ -59,7 +66,7 @@ module Ai
         
         request.body = {
           model: 'claude-3-haiku-20240307',
-          max_tokens: 100,
+          max_tokens: 300,
           messages: [
             {
               role: 'user',
