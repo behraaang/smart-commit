@@ -16,13 +16,13 @@ Generate intelligent, conventional commit messages using Claude AI. No more stru
 Install the gem:
 
 ```bash
-gem install ai-commit
+gem install smart-commit
 ```
 
 Or add to your Gemfile:
 
 ```ruby
-gem 'ai-commit'
+gem 'smart-commit'
 ```
 
 ## Setup
@@ -30,7 +30,7 @@ gem 'ai-commit'
 First, configure your Anthropic API key:
 
 ```bash
-ai-commit setup
+smart-commit setup
 ```
 
 You'll be prompted to enter your API key. Get one at [Anthropic Console](https://console.anthropic.com/).
@@ -46,7 +46,7 @@ You'll be prompted to enter your API key. Get one at [Anthropic Console](https:/
 
 2. Generate a commit message:
    ```bash
-   ai-commit generate
+   smart-commit generate
    ```
 
 3. The tool will analyze your diff and suggest a commit message:
@@ -60,10 +60,10 @@ You'll be prompted to enter your API key. Get one at [Anthropic Console](https:/
 
 ### Commands
 
-- `ai-commit setup` - Configure your API key
-- `ai-commit generate` - Generate commit message from staged changes
-- `ai-commit config` - Show current configuration
-- `ai-commit help` - Show help information
+- `smart-commit setup` - Configure your API key
+- `smart-commit generate` - Generate commit message from staged changes
+- `smart-commit config` - Show current configuration
+- `smart-commit help` - Show help information
 
 ## Examples
 
@@ -72,29 +72,29 @@ The AI generates contextual commit messages based on your actual changes:
 ```bash
 # Adding a new feature
 git add lib/user_auth.rb
-ai-commit generate
+smart-commit generate
 # → "feat: add JWT-based user authentication system"
 
 # Fixing a bug
 git add lib/payment_processor.rb
-ai-commit generate  
+smart-commit generate  
 # → "fix: handle null payment amounts in processor"
 
 # Documentation updates
 git add README.md
-ai-commit generate
+smart-commit generate
 # → "docs: update installation instructions"
 
 # Refactoring code
 git add lib/user_model.rb
-ai-commit generate
+smart-commit generate
 # → "refactor: extract user validation into separate method"
 ```
 
 ## Configuration
 
 ### API Key Storage
-- Config stored in: `~/.ai-commit/config.yml`
+- Config stored in: `~/.smart-commit/config.yml`
 - File permissions: `600` (secure)
 - Environment variable: `ANTHROPIC_API_KEY` (fallback)
 
@@ -117,12 +117,12 @@ After checking out the repo:
 bin/setup                    # Install dependencies
 rake test                   # Run tests
 bin/console                 # Interactive prompt
-bundle exec exe/ai-commit   # Run locally
+bundle exec exe/smart-commit   # Run locally
 ```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/bmirzamani/ai-commit.
+Bug reports and pull requests are welcome on GitHub at https://github.com/bmirzamani/smart-commit.
 
 ## License
 

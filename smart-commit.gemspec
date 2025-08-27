@@ -3,22 +3,22 @@
 require_relative "lib/ai/commit/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "ai-commit"
+  spec.name = "smart-commit"
   spec.version = Ai::Commit::VERSION
   spec.authors = ["Behrang Mirzamani"]
   spec.email = ["behraaang@gmail.com"]
 
   spec.summary = "Generate intelligent conventional commit messages using Claude AI"
   spec.description = "AI-powered commit message generator that analyzes your git diff and creates meaningful, conventional commit messages using Claude AI. No more commit message writer's block!"
-  spec.homepage = "https://github.com/behraaang/ai-commit"
+  spec.homepage = "https://github.com/behraaang/smart-commit"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/behraaang/ai-commit"
-  spec.metadata["changelog_uri"] = "https://github.com/behraaang/ai-commit/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/behraaang/smart-commit"
+  spec.metadata["changelog_uri"] = "https://github.com/behraaang/smart-commit/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

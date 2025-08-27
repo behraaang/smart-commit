@@ -6,7 +6,7 @@ require 'yaml'
 module Ai
   module Commit
     class Config
-      CONFIG_FILE = File.expand_path('~/.ai-commit/config.yml').freeze
+      CONFIG_FILE = File.expand_path('~/.smart-commit/config.yml').freeze
       PROMPTS_FILE = '.commit-prompts'.freeze
       
       def self.api_key

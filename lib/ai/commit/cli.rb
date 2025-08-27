@@ -24,13 +24,13 @@ module Ai
         
         Config.set_api_key(api_key)
         puts "✓ API key saved successfully!"
-        puts "You can now use 'ai-commit generate' to create commit messages."
+        puts "You can now use 'smart-commit generate' to create commit messages."
       end
       
       desc "generate", "Generate a commit message based on staged changes"
       def generate
         unless Config.api_key_configured?
-          puts "❌ No API key configured. Please run 'ai-commit setup' first."
+          puts "❌ No API key configured. Please run 'smart-commit setup' first."
           exit 1
         end
         
@@ -68,7 +68,7 @@ module Ai
       desc "commit", "Generate a commit message and commit with confirmation"
       def commit
         unless Config.api_key_configured?
-          puts "❌ No API key configured. Please run 'ai-commit setup' first."
+          puts "❌ No API key configured. Please run 'smart-commit setup' first."
           exit 1
         end
         

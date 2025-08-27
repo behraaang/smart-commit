@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ai-commit (0.1.0)
+    smart-commit (0.1.0)
       json (~> 2.0)
       net-http (~> 0.3)
       thor (~> 1.0)
@@ -70,11 +70,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ai-commit!
   irb
   minitest (~> 5.16)
   rake (~> 13.0)
   rubocop (~> 1.21)
+  smart-commit!
 
 BUNDLED WITH
    2.6.5
