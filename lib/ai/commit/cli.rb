@@ -94,20 +94,34 @@ module Ai
           puts message
           puts "=" * 50
           
-          print "\nCommit with this message? (y/N): "
+          print "\nCommit with this message? (y/N/e to edit): "
           response = STDIN.gets.chomp.downcase
           
           if response == 'y' || response == 'yes'
             puts "\n🚀 Committing..."
-            result = `git commit -m "#{message}"`
+            result = system("git", "commit", "-m", message)
             
-            if $?.exitstatus == 0
+            if result
               puts "✅ Successfully committed!"
-              puts result
             else
-              puts "❌ Failed to commit:"
-              puts result
+              puts "❌ Failed to commit"
               exit 1
+            end
+          elsif response == 'e' || response == 'edit'
+            edited_message = edit_message(message)
+            if edited_message && !edited_message.strip.empty?
+              puts "\n🚀 Committing with edited message..."
+              result = system("git", "commit", "-m", edited_message)
+              
+              if result
+                puts "✅ Successfully committed!"
+              else
+                puts "❌ Failed to commit"
+                exit 1
+              end
+            else
+              puts "❌ Commit cancelled."
+              exit 0
             end
           else
             puts "❌ Commit cancelled."
@@ -171,6 +185,32 @@ module Ai
         File.write(prompts_file, sample_content)
         puts "✅ Created #{prompts_file} with sample content"
         puts "📝 Edit the file to add your custom prompts"
+      end
+      
+      private
+      
+      def edit_message(original_message)
+        puts "\n📝 Opening editor to modify commit message..."
+        puts "Original message will be loaded in your default editor."
+        puts "Save and close the editor to commit, or close without saving to cancel."
+        
+        # Create a temporary file with the original message
+        require 'tempfile'
+        temp_file = Tempfile.new(['commit_message', '.txt'])
+        temp_file.write(original_message)
+        temp_file.close
+        
+        # Get the default editor
+        editor = ENV['EDITOR'] || ENV['VISUAL'] || 'nano'
+        
+        # Open the file in the editor
+        system("#{editor} #{temp_file.path}")
+        
+        # Read the edited content
+        edited_content = File.read(temp_file.path)
+        temp_file.unlink
+        
+        edited_content
       end
     end
   end
