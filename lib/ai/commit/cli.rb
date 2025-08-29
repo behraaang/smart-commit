@@ -94,7 +94,7 @@ module Ai
           puts message
           puts "=" * 50
           
-          print "\nCommit with this message? (y/N/e to edit): "
+          print "\nCommit with this message? (y/N/e to edit/r to regenerate): "
           response = STDIN.gets.chomp.downcase
           
           if response == 'y' || response == 'yes'
@@ -123,6 +123,8 @@ module Ai
               puts "❌ Commit cancelled."
               exit 0
             end
+          elsif response == 'r' || response == 'regenerate'
+            regenerate_with_feedback(message, diff, client)
           else
             puts "❌ Commit cancelled."
             exit 0
@@ -211,6 +213,72 @@ module Ai
         temp_file.unlink
         
         edited_content
+      end
+      
+      def regenerate_with_feedback(prev_message, diff, client)
+        puts "\n💬 What would you like to change about the commit message?"
+        puts "Examples: 'make it more concise', 'add more detail about the bug fix', 'change the type to feat'"
+        print "Feedback: "
+        feedback = STDIN.gets.chomp.strip
+        
+        if feedback.empty?
+          puts "❌ No feedback provided. Cancelling regeneration."
+          return
+        end
+        
+        puts "\n🤖 Regenerating commit message with your feedback..."
+        
+        begin
+          new_message = client.generate_commit_message_with_feedback(prev_message, diff, feedback)
+          
+          puts "\n✨ New commit message:"
+          puts "=" * 50
+          puts new_message
+          puts "=" * 50
+          
+          print "\nCommit with this message? (y/N/e to edit/r to regenerate again): "
+          response = STDIN.gets.chomp.downcase
+          
+          if response == 'y' || response == 'yes'
+            puts "\n🚀 Committing..."
+            result = system("git", "commit", "-m", new_message)
+            
+            if result
+              puts "✅ Successfully committed!"
+            else
+              puts "❌ Failed to commit"
+              exit 1
+            end
+          elsif response == 'e' || response == 'edit'
+            edited_message = edit_message(new_message)
+            if edited_message && !edited_message.strip.empty?
+              puts "\n🚀 Committing with edited message..."
+              result = system("git", "commit", "-m", edited_message)
+              
+              if result
+                puts "✅ Successfully committed!"
+              else
+                puts "❌ Failed to commit"
+                exit 1
+              end
+            else
+              puts "❌ Commit cancelled."
+              exit 0
+            end
+          elsif response == 'r' || response == 'regenerate'
+            regenerate_with_feedback(new_message, diff, client)
+          else
+            puts "❌ Commit cancelled."
+            exit 0
+          end
+          
+        rescue Error => e
+          puts "❌ Error regenerating message: #{e.message}"
+          exit 1
+        rescue => e
+          puts "❌ Unexpected error: #{e.message}"
+          exit 1
+        end
       end
     end
   end

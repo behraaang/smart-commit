@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+## [0.3.0] - 2025-01-27
+
+### Added
+- Regenerate functionality for commit messages with user feedback
+- Users can now provide specific feedback to improve AI-generated commit messages
+- Recursive regeneration - users can regenerate multiple times with different feedback
+- Enhanced prompt that incorporates user feedback for better message generation
+
 ## [0.2.0] - 2025-01-27
 
 ### Added
