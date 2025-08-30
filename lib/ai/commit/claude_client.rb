@@ -20,8 +20,8 @@ module Ai
         extract_message(response)
       end
       
-      def generate_commit_message_with_feedback(prev_message, diff, feedback)
-        prompt = build_prompt_with_feedback(prev_message, diff, feedback)
+      def generate_commit_message_with_feedback(diff, feedback_array)
+        prompt = build_prompt_with_feedback(diff, feedback_array)
         
         response = make_request(prompt)
         extract_message(response)
@@ -61,14 +61,16 @@ module Ai
         PROMPT
       end
       
-      def build_prompt_with_feedback(prev_message, diff, feedback)
+      def build_prompt_with_feedback(diff, feedback_array)
         custom_prompts = Config.custom_prompts
         custom_prompt_text = custom_prompts.empty? ? '' : "\n\nAdditional context and preferences:\n#{custom_prompts.join("\n")}"
+        
+        feedback_text = feedback_array.map.with_index { |feedback, i| "#{i + 1}. #{feedback}" }.join("\n")
         
         <<~PROMPT
           You are a helpful assistant that generates conventional commit messages.
           
-          Based on the following git diff,
+          Based on the following git diff, generate a conventional commit message that:
           1. Use conventional commit format: type(scope): description
           2. Keep subject line under 50 characters
           3. Use imperative mood ("add" not "added")
@@ -86,16 +88,13 @@ module Ai
 
           #{custom_prompt_text}
           
-          You suggested a commit message of:
-          #{prev_message}
-
-          IMPORTANT: The user has provided feedback on a previous attempt. Please address their feedback:
-          "#{feedback}"
+          IMPORTANT: The user has provided feedback on previous attempts. Please address ALL of the following feedback:
+          #{feedback_text}
           
           Git diff:
           #{diff}
           
-          Change the commit message to address the feedback. and respond with the updated commit message.
+          Respond with the complete commit message including subject and body, preserving line breaks.
         PROMPT
       end
       

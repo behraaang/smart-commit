@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+## [0.4.0] - 2025-01-27
+
+### Fixed
+- Made regenerate functionality truly recursive with accumulated feedback
+- Limited regenerations to maximum of 3 attempts
+- Each regeneration now builds upon all previous feedback
+- Improved prompt to address all accumulated feedback points
+
 ## [0.3.0] - 2025-01-27
 
 ### Added

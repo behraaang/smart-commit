@@ -124,7 +124,7 @@ module Ai
               exit 0
             end
           elsif response == 'r' || response == 'regenerate'
-            regenerate_with_feedback(message, diff, client)
+            regenerate_with_feedback(diff, client, 1, [])
           else
             puts "❌ Commit cancelled."
             exit 0
@@ -215,9 +215,17 @@ module Ai
         edited_content
       end
       
-      def regenerate_with_feedback(prev_message, diff, client)
-        puts "\n💬 What would you like to change about the commit message?"
+      def regenerate_with_feedback(diff, client, attempt = 1, accumulated_feedback = [])
+        if attempt > 3
+          puts "\n⚠️  Maximum regenerations (3) reached. Please commit with the current message or edit it manually."
+          return
+        end
+        
+        puts "\n💬 What would you like to change about the commit message? (Attempt #{attempt}/3)"
         puts "Examples: 'make it more concise', 'add more detail about the bug fix', 'change the type to feat'"
+        if !accumulated_feedback.empty?
+          puts "Previous feedback: #{accumulated_feedback.join(', ')}"
+        end
         print "Feedback: "
         feedback = STDIN.gets.chomp.strip
         
@@ -226,10 +234,13 @@ module Ai
           return
         end
         
+        # Add current feedback to accumulated list
+        all_feedback = accumulated_feedback + [feedback]
+        
         puts "\n🤖 Regenerating commit message with your feedback..."
         
         begin
-          new_message = client.generate_commit_message_with_feedback(prev_message, diff, feedback)
+          new_message = client.generate_commit_message_with_feedback(diff, all_feedback)
           
           puts "\n✨ New commit message:"
           puts "=" * 50
@@ -266,7 +277,7 @@ module Ai
               exit 0
             end
           elsif response == 'r' || response == 'regenerate'
-            regenerate_with_feedback(new_message, diff, client)
+            regenerate_with_feedback(diff, client, attempt + 1, all_feedback)
           else
             puts "❌ Commit cancelled."
             exit 0
