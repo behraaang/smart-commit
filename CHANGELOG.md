@@ -1,5 +1,22 @@
 ## [Unreleased]
 
+## [0.8.0] - 2025-01-27
+
+### Added
+- Smart ticket number extraction from branch names
+- Automatically detects ticket numbers like ABC-123, PROJ-456 from branch names
+- Supports common branch naming patterns: feature/ABC-123, bugfix/PROJ-456, etc.
+- Includes ticket numbers in commit message scope when relevant
+- Refactored commit guidelines into a constant for DRY code
+
+## [0.7.0] - 2025-01-27
+
+### Added
+- `--hash` option to generate commit messages from diff between HEAD and specified commit
+- Users can now run `aigc --hash abc123` to generate a message for changes between commit abc123 and HEAD
+- Useful for analyzing existing commits or generating messages for uncommitted changes since a specific commit
+- Added `Git.commit_diff` method to get diff between two commits
+
 ## [0.6.0] - 2025-01-27
 
 ### Changed

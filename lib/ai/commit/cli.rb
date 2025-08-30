@@ -70,6 +70,7 @@ module Ai
       end
       
       desc "commit", "Generate a commit message and commit with confirmation"
+      option :hash, :type => :string, :desc => "Generate message from diff between HEAD and specified commit hash"
       def commit
         unless Config.api_key_configured?
           puts "❌ No API key configured. Please run 'aigc setup' first."
@@ -81,15 +82,32 @@ module Ai
           exit 1
         end
         
-        unless Git.has_staged_changes?
-          puts "❌ No staged changes found. Stage your changes with 'git add' first."
-          exit 1
+        if options[:hash]
+          puts "🤖 Generating commit message from diff between HEAD and #{options[:hash]}..."
+          
+          begin
+            diff = Git.commit_diff(options[:hash])
+          rescue => e
+            puts "❌ Error getting commit diff: #{e.message}"
+            exit 1
+          end
+        else
+          unless Git.has_staged_changes?
+            puts "❌ No staged changes found. Stage your changes with 'git add' first."
+            exit 1
+          end
+          
+          puts "🤖 Generating commit message..."
+          
+          begin
+            diff = Git.staged_diff
+          rescue => e
+            puts "❌ Error getting staged diff: #{e.message}"
+            exit 1
+          end
         end
         
-        puts "🤖 Generating commit message..."
-        
         begin
-          diff = Git.staged_diff
           client = ClaudeClient.new(Config.api_key)
           message = client.generate_commit_message(diff)
           
@@ -97,25 +115,21 @@ module Ai
           puts "=" * 50
           puts message
           puts "=" * 50
-          
-          print "\nCommit with this message? (y/N/e to edit/r to regenerate): "
-          response = STDIN.gets.chomp.downcase
+            
+            if options[:hash]
+              print "\nCopy this message? (y/N/e to edit/r to regenerate): "
+            else
+              print "\nCommit with this message? (y/N/e to edit/r to regenerate): "
+            end
+            response = STDIN.gets.chomp.downcase
           
           if response == 'y' || response == 'yes'
-            puts "\n🚀 Committing..."
-            result = system("git", "commit", "-m", message)
-            
-            if result
-              puts "✅ Successfully committed!"
+            if options[:hash]
+              puts "\n📋 Message ready to copy:"
+              puts message
             else
-              puts "❌ Failed to commit"
-              exit 1
-            end
-          elsif response == 'e' || response == 'edit'
-            edited_message = edit_message(message)
-            if edited_message && !edited_message.strip.empty?
-              puts "\n🚀 Committing with edited message..."
-              result = system("git", "commit", "-m", edited_message)
+              puts "\n🚀 Committing..."
+              result = system("git", "commit", "-m", message)
               
               if result
                 puts "✅ Successfully committed!"
@@ -123,14 +137,36 @@ module Ai
                 puts "❌ Failed to commit"
                 exit 1
               end
+            end
+          elsif response == 'e' || response == 'edit'
+            edited_message = edit_message(message)
+            if edited_message && !edited_message.strip.empty?
+              if options[:hash]
+                puts "\n📋 Edited message ready to copy:"
+                puts edited_message
+              else
+                puts "\n🚀 Committing with edited message..."
+                result = system("git", "commit", "-m", edited_message)
+                
+                if result
+                  puts "✅ Successfully committed!"
+                else
+                  puts "❌ Failed to commit"
+                  exit 1
+                end
+              end
             else
-              puts "❌ Commit cancelled."
+              puts "❌ Operation cancelled."
               exit 0
             end
           elsif response == 'r' || response == 'regenerate'
-            regenerate_with_feedback(diff, client, 1, [])
+            regenerate_with_feedback(diff, client, 1, [], options[:hash])
           else
-            puts "❌ Commit cancelled."
+            if options[:hash]
+              puts "❌ Operation cancelled."
+            else
+              puts "❌ Commit cancelled."
+            end
             exit 0
           end
           
@@ -219,7 +255,7 @@ module Ai
         edited_content
       end
       
-      def regenerate_with_feedback(diff, client, attempt = 1, accumulated_feedback = [])
+      def regenerate_with_feedback(diff, client, attempt = 1, accumulated_feedback = [], is_hash_mode = false)
         if attempt > 3
           puts "\n⚠️  Maximum regenerations (3) reached. Please commit with the current message or edit it manually."
           return
@@ -251,18 +287,27 @@ module Ai
           puts new_message
           puts "=" * 50
           
-          print "\nCommit with this message? (y/N/e to edit/r to regenerate again): "
+          if is_hash_mode
+            print "\nCopy this message? (y/N/e to edit/r to regenerate again): "
+          else
+            print "\nCommit with this message? (y/N/e to edit/r to regenerate again): "
+          end
           response = STDIN.gets.chomp.downcase
           
           if response == 'y' || response == 'yes'
-            puts "\n🚀 Committing..."
-            result = system("git", "commit", "-m", new_message)
-            
-            if result
-              puts "✅ Successfully committed!"
+            if is_hash_mode
+              puts "\n📋 Message ready to copy:"
+              puts new_message
             else
-              puts "❌ Failed to commit"
-              exit 1
+              puts "\n🚀 Committing..."
+              result = system("git", "commit", "-m", new_message)
+              
+              if result
+                puts "✅ Successfully committed!"
+              else
+                puts "❌ Failed to commit"
+                exit 1
+              end
             end
           elsif response == 'e' || response == 'edit'
             edited_message = edit_message(new_message)
@@ -281,7 +326,7 @@ module Ai
               exit 0
             end
           elsif response == 'r' || response == 'regenerate'
-            regenerate_with_feedback(diff, client, attempt + 1, all_feedback)
+            regenerate_with_feedback(diff, client, attempt + 1, all_feedback, is_hash_mode)
           else
             puts "❌ Commit cancelled."
             exit 0
