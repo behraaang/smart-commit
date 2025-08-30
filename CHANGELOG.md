@@ -1,5 +1,18 @@
 ## [Unreleased]
 
+## [0.6.0] - 2025-01-27
+
+### Changed
+- Made `aigc` the default command (no subcommand needed)
+- Users can now run just `aigc` instead of `aigc commit`
+- Updated all error messages to reference `aigc` instead of `smart-commit`
+
+## [0.5.0] - 2025-01-27
+
+### Changed
+- Renamed gem from `smart-commit` to `aigc` for shorter, more convenient usage
+- Updated executable name from `smart-commit` to `aigc`
+
 ## [0.4.0] - 2025-01-27
 
 ### Fixed

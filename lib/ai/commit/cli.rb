@@ -10,6 +10,10 @@ module Ai
       def self.exit_on_failure?
         true
       end
+      
+      default_command :commit
+      
+      desc "commit", "Generate a commit message and commit with confirmation (default command)"
       desc "setup", "Configure AI Commit with your Anthropic API key"
       def setup
         puts "Welcome to AI Commit setup!"
@@ -24,13 +28,13 @@ module Ai
         
         Config.set_api_key(api_key)
         puts "✓ API key saved successfully!"
-        puts "You can now use 'smart-commit generate' to create commit messages."
+        puts "You can now use 'aigc' to create commit messages."
       end
       
       desc "generate", "Generate a commit message based on staged changes"
       def generate
         unless Config.api_key_configured?
-          puts "❌ No API key configured. Please run 'smart-commit setup' first."
+          puts "❌ No API key configured. Please run 'aigc setup' first."
           exit 1
         end
         
@@ -68,7 +72,7 @@ module Ai
       desc "commit", "Generate a commit message and commit with confirmation"
       def commit
         unless Config.api_key_configured?
-          puts "❌ No API key configured. Please run 'smart-commit setup' first."
+          puts "❌ No API key configured. Please run 'aigc setup' first."
           exit 1
         end
         
